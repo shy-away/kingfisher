@@ -26,6 +26,8 @@ const createWindow = () => {
     );
   }
 
+  mainWindow.removeMenu();
+
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
 };
