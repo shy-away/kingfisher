@@ -4,7 +4,7 @@ import TestChess from "./components/testChess";
 export default function App() {
   return (
     <>
-      <h1>Test text</h1>
+      <h1>Play vs random AI</h1>
       <TestChess />
     </>
   );
