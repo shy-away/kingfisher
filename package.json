@@ -1,8 +1,8 @@
 {
-  "name": "react-ts-test-app",
-  "productName": "react-ts-test-app",
+  "name": "kingfisher",
+  "productName": "kingfisher",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Chess puzzle trainer using the Woodpecker method",
   "main": ".vite/build/main.js",
   "type": "module",
   "scripts": {
