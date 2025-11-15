@@ -5,22 +5,21 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { Chess } from "chess.js";
-import { shell } from "electron";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner"
+import { Spinner } from "@/components/ui/spinner";
 
 const queryClient = new QueryClient();
 
-export default function TestPuzzle() {
+export default function Puzzle() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Puzzle />
+      <PuzzleWindow />
     </QueryClientProvider>
   );
 }
 
-function Puzzle() {
+function PuzzleWindow() {
   // fetch puzzle data
   // create chess game using puzzle data
   // display puzzle on chess board
@@ -28,24 +27,47 @@ function Puzzle() {
   // if user makes next correct move: update board, update display, and go to next move of puzzle
   // at the end of the puzzle, provide feedback that the puzzle is complete
 
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    error: puzzleFetchError,
+    refetch: refetchNewPuzzle,
+    isFetching: puzzleIsFetching,
+  } = useQuery({
     queryKey: ["puzzle"],
     queryFn: getNewPuzzle,
+    staleTime: Infinity,
   });
 
   const handleOpenPuzzle = () => {
     const link = `https://lichess.org/training/${data.puzzle.id}`;
-    window.electronAPI.openUrl(link)
+    window.electronAPI.openUrl(link);
   };
 
-  if (isLoading) return <Spinner />;
+  const handleGetNewPuzzle = () => {
+    refetchNewPuzzle();
+  };
 
-  if (isError) return <div>Error!</div>;
-
-  return (
-    <Button variant="outline" onClick={handleOpenPuzzle} className="border-amber-500">
-      See puzzle
-    </Button>
+  return isLoading ? (
+    <Spinner />
+  ) : isError ? (
+    <div>Error: {puzzleFetchError.message}</div>
+  ) : (
+    <div>
+      <h2>Puzzle PGN:</h2>
+      <p>{JSON.stringify(data.game.pgn)}</p>
+      <Button
+        variant="outline"
+        onClick={handleOpenPuzzle}
+        className="border-amber-500"
+      >
+        See puzzle on Lichess
+      </Button>
+      <Button onClick={handleGetNewPuzzle}>
+        Get new puzzle{puzzleIsFetching && <Spinner />}
+      </Button>
+    </div>
   );
 }
 
