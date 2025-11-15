@@ -16,7 +16,10 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["electron/**/*", "src/**/*", "forge.env.d.ts"]
 }

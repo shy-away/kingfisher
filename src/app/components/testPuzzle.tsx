@@ -7,6 +7,8 @@ import {
 import { Chess } from "chess.js";
 import { shell } from "electron";
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner"
 
 const queryClient = new QueryClient();
 
@@ -36,14 +38,14 @@ function Puzzle() {
     window.electronAPI.openUrl(link)
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Spinner />;
 
   if (isError) return <div>Error!</div>;
 
   return (
-    <button onClick={handleOpenPuzzle} className="border-amber-500">
+    <Button variant="outline" onClick={handleOpenPuzzle} className="border-amber-500">
       See puzzle
-    </button>
+    </Button>
   );
 }
 
