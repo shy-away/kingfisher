@@ -1,5 +1,5 @@
 import React from "react";
-import Puzzle from "./components/testPuzzle";
+import Puzzle from "./components/puzzle";
 
 export default function App() {
   return (
