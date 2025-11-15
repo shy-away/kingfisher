@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# Images
+base_images/
