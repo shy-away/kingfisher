@@ -64,7 +64,7 @@ function PuzzleWindow() {
       >
         See puzzle on Lichess
       </Button>
-      <Button onClick={handleGetNewPuzzle}>
+      <Button disabled={puzzleIsFetching} onClick={handleGetNewPuzzle}>
         Get new puzzle{puzzleIsFetching && <Spinner />}
       </Button>
     </div>
