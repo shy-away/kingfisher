@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
   QueryClient,
   QueryClientProvider,
@@ -8,8 +8,34 @@ import { Chess } from "chess.js";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Chessboard } from "react-chessboard";
 import Chessground from "./chessground";
+
+interface PuzzleData {
+  game: {
+    clock: string;
+    id: string;
+    perf: {
+      key: string;
+      name: string;
+    };
+    pgn: string;
+    players: Array<{
+      color: string;
+      flair: string;
+      id: string;
+      name: string;
+      rating: number;
+    }>;
+  };
+  puzzle: {
+    id: string;
+    initialPly: number;
+    plays: number;
+    rating: number;
+    solution: Array<string>;
+    themes: Array<string>;
+  };
+}
 
 const queryClient = new QueryClient();
 
@@ -41,7 +67,7 @@ function PuzzleWindow() {
     error: puzzleFetchError,
     refetch: refetchNewPuzzle,
     isFetching: puzzleIsFetching,
-  } = useQuery({
+  } = useQuery<PuzzleData | undefined>({
     queryKey: ["puzzle"],
     queryFn: getNewPuzzle,
     staleTime: Infinity,
@@ -55,7 +81,7 @@ function PuzzleWindow() {
   }, [puzzleData]);
 
   const handleOpenPuzzle = () => {
-    const link = `https://lichess.org/training/${puzzleData.puzzle.id}`;
+    const link = `https://lichess.org/training/${puzzleData?.puzzle.id}`;
     window.electronAPI.openUrl(link);
   };
 
@@ -69,21 +95,25 @@ function PuzzleWindow() {
     <div>Error: {puzzleFetchError.message}</div>
   ) : (
     <div>
-      <h2>Puzzle PGN:</h2>
-      <p>{JSON.stringify(puzzleData.game.pgn)}</p>
-      <div
-        id="chessgroundContainer"
-        style={{ width: "500px", height: "500px" }}
-      >
-        <Chessground
-          contained={true}
-          config={{
-            fen: chessPosition,
-            orientation:
-              puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white",
-          }}
-        />
-      </div>
+      {puzzleData && (
+        <>
+          <h2>Puzzle PGN:</h2>
+          <p>{JSON.stringify(puzzleData.game.pgn)}</p>
+          <div
+            id="chessgroundContainer"
+            style={{ width: "500px", height: "500px" }}
+          >
+            <Chessground
+              contained={true}
+              config={{
+                fen: chessPosition,
+                orientation:
+                  puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white",
+              }}
+            />
+          </div>
+        </>
+      )}
       <Button
         variant="outline"
         onClick={handleOpenPuzzle}
@@ -103,6 +133,5 @@ async function getNewPuzzle() {
     "https://lichess.org/api/puzzle/next?difficulty=easiest"
   );
   const data = await response.json();
-  console.log(data);
   return data;
 }
