@@ -5,9 +5,11 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { Chess } from "chess.js";
-import { useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Chessboard } from "react-chessboard";
+import Chessground from "./chessground";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,9 @@ function PuzzleWindow() {
     <div>
       <h2>Puzzle PGN:</h2>
       <p>{JSON.stringify(data.game.pgn)}</p>
+      <div id="chessgroundContainer" style={{width: "100%", height: "100%"}}>
+        <Chessground contained={false} />
+      </div>
       <Button
         variant="outline"
         onClick={handleOpenPuzzle}
