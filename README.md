@@ -23,3 +23,7 @@ https://zwischenzug.substack.com/p/the-woodpecker-method), but many have found s
 
 Other related resources:
  - https://zwischenzug.substack.com/p/the-woodpecker-method-revisited
+
+ ## Credits
+
+ Aside from the many projects listed in [THIRDPARTY](THIRDPARTY.md), I modified [Richard Hong](https://github.com/richardxhong)'s [Chessground](https://github.com/react-chess/chessground) React component, published under the [GPLv3 License](https://www.gnu.org/licenses/gpl-3.0.html#license-text).
