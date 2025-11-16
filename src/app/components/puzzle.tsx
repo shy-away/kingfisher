@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   QueryClient,
   QueryClientProvider,
@@ -29,8 +29,13 @@ function PuzzleWindow() {
   // if user makes next correct move: update board, update display, and go to next move of puzzle
   // at the end of the puzzle, provide feedback that the puzzle is complete
 
+  const chessGameRef = useRef(new Chess());
+  const chessGame = chessGameRef.current;
+
+  const [chessPosition, setChessPosition] = useState(chessGame.fen());
+
   const {
-    data,
+    data: puzzleData,
     isLoading,
     isError,
     error: puzzleFetchError,
@@ -42,8 +47,15 @@ function PuzzleWindow() {
     staleTime: Infinity,
   });
 
+  useEffect(() => {
+    if (!puzzleData) return;
+
+    chessGame.loadPgn(puzzleData.game.pgn);
+    setChessPosition(chessGame.fen());
+  }, [puzzleData]);
+
   const handleOpenPuzzle = () => {
-    const link = `https://lichess.org/training/${data.puzzle.id}`;
+    const link = `https://lichess.org/training/${puzzleData.puzzle.id}`;
     window.electronAPI.openUrl(link);
   };
 
@@ -58,9 +70,19 @@ function PuzzleWindow() {
   ) : (
     <div>
       <h2>Puzzle PGN:</h2>
-      <p>{JSON.stringify(data.game.pgn)}</p>
-      <div id="chessgroundContainer" style={{width: "100%", height: "100%"}}>
-        <Chessground contained={false} />
+      <p>{JSON.stringify(puzzleData.game.pgn)}</p>
+      <div
+        id="chessgroundContainer"
+        style={{ width: "500px", height: "500px" }}
+      >
+        <Chessground
+          contained={true}
+          config={{
+            fen: chessPosition,
+            orientation:
+              puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white",
+          }}
+        />
       </div>
       <Button
         variant="outline"
