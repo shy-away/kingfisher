@@ -1,7 +1,7 @@
-import React from "react";
+import { createRoot } from "react-dom/client";
 import Puzzle from "./components/puzzle";
 
-export default function App() {
+function App() {
   return (
     <>
       <h1>Complete a Random Puzzle</h1>
@@ -9,3 +9,5 @@ export default function App() {
     </>
   );
 }
+
+createRoot(document.body).render(<App />);
