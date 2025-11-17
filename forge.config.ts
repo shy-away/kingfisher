@@ -6,11 +6,15 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import * as path from "path";
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: "images/kingfisher_256"
+    icon: path.join(__dirname, "images", "kingfisher_256"),
   },
   rebuildConfig: {},
   makers: [
