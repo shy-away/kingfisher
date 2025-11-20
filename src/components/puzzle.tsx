@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Key, useEffect } from "react";
 import {
   QueryClient,
   QueryClientProvider,
@@ -9,6 +9,7 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import Chessground from "./chessground";
+import { MoveMetadata } from "@lichess-org/chessground/types";
 
 interface PuzzleData {
   game: {
@@ -55,11 +56,6 @@ function PuzzleWindow() {
   // if user makes next correct move: update board, update display, and go to next move of puzzle
   // at the end of the puzzle, provide feedback that the puzzle is complete
 
-  const chessGameRef = useRef(new Chess());
-  const chessGame = chessGameRef.current;
-
-  const [chessPosition, setChessPosition] = useState(chessGame.fen());
-
   const {
     data: puzzleData,
     isLoading,
@@ -73,11 +69,35 @@ function PuzzleWindow() {
     staleTime: Infinity,
   });
 
+  const chessGameRef = useRef(new Chess());
+  const chessGame = chessGameRef.current;
+
+  const [chessPosition, setChessPosition] = useState(chessGame.fen());
+  const [viewOnly, setViewOnly] = useState(true);
+
+  const updateChessPosition = () => {
+    setChessPosition(chessGame.fen());
+  };
+
   useEffect(() => {
     if (!puzzleData) return;
 
-    chessGame.loadPgn(puzzleData.game.pgn);
-    setChessPosition(chessGame.fen());
+    setViewOnly(true);
+
+    const puzzlePgn: string = puzzleData.game.pgn;
+    const puzzlePgnArr: string[] = puzzlePgn.split(" ");
+
+    // TODO: find better fix than `?? ""` for addressing type issue
+    const lastMove = puzzlePgnArr.at(-1) ?? "";
+
+    chessGame.loadPgn(puzzlePgnArr.slice(0, -1).join(" "));
+    updateChessPosition();
+
+    setTimeout(() => {
+      chessGame.move(lastMove);
+      updateChessPosition();
+      setViewOnly(false);
+    }, 1000);
   }, [puzzleData]);
 
   const handleOpenPuzzle = () => {
@@ -88,6 +108,17 @@ function PuzzleWindow() {
   const handleGetNewPuzzle = () => {
     refetchNewPuzzle();
   };
+
+  const handleMove = (orig: Key, dest: Key, metadata: MoveMetadata): void => {
+    console.log("Origin:", orig);
+    console.log("Destination:", dest);
+    console.log("Metadata:", metadata);
+  }
+
+  // TODO: find better solution for type safety
+  const { from: lastMoveFrom, to: lastMoveTo } = chessGame
+    .history({ verbose: true })
+    .at(-1) ?? {from: "e2", to: "e4"};
 
   return isLoading ? (
     <Spinner />
@@ -106,9 +137,19 @@ function PuzzleWindow() {
             <Chessground
               contained={true}
               config={{
+                viewOnly,
                 fen: chessPosition,
                 orientation:
-                  puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white",
+                  puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white", // TODO: DRY this and next use of same expression
+                lastMove: [lastMoveFrom, lastMoveTo],
+                turnColor: chessGame.turn() === "w" ? "white" : "black",
+                check: chessGame.inCheck(),
+                movable: {
+                  color: puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white",
+                  events: {
+                    after: handleMove
+                  }
+                }
               }}
             />
           </div>
