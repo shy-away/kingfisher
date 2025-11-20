@@ -73,8 +73,8 @@ function PuzzleWindow() {
   const chessGame: Chess = chessGameRef.current;
 
   const [chessPosition, setChessPosition] = useState<string>(chessGame.fen());
-  const [viewOnly, setViewOnly] = useState<boolean>(true);
-  const [solution, setSolution] = useState<string[]>([]);
+  const [viewOnly, setViewOnly] = useState<boolean>(false);
+  const [puzzleSolution, setPuzzleSolution] = useState<string[]>([]);
 
   const updateChessPosition = () => {
     setChessPosition(chessGame.fen());
@@ -84,6 +84,8 @@ function PuzzleWindow() {
     if (!puzzleData) return;
 
     setViewOnly(true);
+
+    setPuzzleSolution(puzzleData.puzzle.solution);
 
     const puzzlePgn: string = puzzleData.game.pgn;
     const puzzlePgnArr: string[] = puzzlePgn.split(" ");
