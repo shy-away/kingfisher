@@ -69,11 +69,12 @@ function PuzzleWindow() {
     staleTime: Infinity,
   });
 
-  const chessGameRef = useRef(new Chess());
-  const chessGame = chessGameRef.current;
+  const chessGameRef = useRef<Chess>(new Chess());
+  const chessGame: Chess = chessGameRef.current;
 
-  const [chessPosition, setChessPosition] = useState(chessGame.fen());
-  const [viewOnly, setViewOnly] = useState(true);
+  const [chessPosition, setChessPosition] = useState<string>(chessGame.fen());
+  const [viewOnly, setViewOnly] = useState<boolean>(true);
+  const [solution, setSolution] = useState<string[]>([]);
 
   const updateChessPosition = () => {
     setChessPosition(chessGame.fen());
