@@ -75,6 +75,7 @@ function PuzzleWindow() {
   const [chessPosition, setChessPosition] = useState<string>(chessGame.fen());
   const [viewOnly, setViewOnly] = useState<boolean>(false);
   const [puzzleSolution, setPuzzleSolution] = useState<string[]>([]);
+  const [puzzleFeedback, setPuzzleFeedback] = useState<string>("Make a move...");
 
   const updateChessPosition = () => {
     setChessPosition(chessGame.fen());
@@ -113,9 +114,62 @@ function PuzzleWindow() {
   };
 
   const handleMove = (orig: Key, dest: Key, metadata: MoveMetadata): void => {
-    console.log("Origin:", orig);
-    console.log("Destination:", dest);
-    console.log("Metadata:", metadata);
+    // console.log("Origin:", orig);
+    // console.log("Destination:", dest);
+    // console.log("Metadata:", metadata);
+
+    /**
+     * if move is invalid, ignore
+     * if move is valid but not solution, provide feedback that the move was incorrect
+     * if move is valid and is the next move of the solution, but not the last move, provide feedback that the move was correct and that the puzzle continues, and make the opponent's next move as provided
+     * if move is valid and is the last move of the solution, provide feedback that the move was correct and the puzzle is done
+     */
+
+    setViewOnly(true);
+
+    const userMove: string = `${orig}${dest}`;
+
+    let msg: string = "";
+
+    if (userMove !== puzzleSolution[0]) {
+      msg += `${userMove} wasn't the solution. `
+      setViewOnly(true);
+      setTimeout(() => {
+        updateChessPosition();
+      }, 500)
+    } else {
+      // correct move
+      msg += `${userMove} was the solution. `
+      chessGame.move(userMove);
+      updateChessPosition();
+      
+      if (puzzleSolution.length > 1) {
+        msg += "Keep going!"
+        const puzzleOpponentMove = puzzleSolution[1];
+        setPuzzleSolution(prev => prev.slice(2))
+
+        setTimeout(() => {
+          chessGame.move(puzzleOpponentMove);
+          updateChessPosition();
+        }, 1000)
+      } else {
+        // last move of puzzle
+        msg += "You've solved the puzzle."
+      }
+    }
+
+    setPuzzleFeedback(msg);
+
+    // TODO: validate differently if puzzle has theme `mateIn1`
+    /** Lichess puzzles always have exactly one solution as calculated by their
+     * engine, UNLESS the puzzle is a mate in 1. In that case, multiple
+     * solutions are allowed. Because of that, in the case that the puzzle is
+     * a mate in 1, the user may input a solution that is correct but nonetheless
+     * not the move specified by the API as "correct". In that case, manual
+     * validation using `chessGame.isCheckmate()` will need to occur.
+     */
+
+    setViewOnly(false);
   }
 
   // TODO: find better solution for type safety
@@ -129,10 +183,9 @@ function PuzzleWindow() {
     <div>Error: {puzzleFetchError.message}</div>
   ) : (
     <div>
+      <p id="puzzle-feedback">{puzzleFeedback}</p>
       {puzzleData && (
         <>
-          <h2>Puzzle PGN:</h2>
-          <p>{JSON.stringify(puzzleData.game.pgn)}</p>
           <div
             id="chessgroundContainer"
             style={{ width: "500px", height: "500px" }}
