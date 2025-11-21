@@ -131,14 +131,14 @@ function PuzzleWindow() {
     refetchNewPuzzle();
   };
 
+  /**
+   * if move is valid but not solution, provide feedback that the move was incorrect
+   * 
+   * if move is valid and is the next move of the solution, but not the last move, provide feedback that the move was correct and that the puzzle continues, and make the opponent's next move as provided
+   * 
+   * if move is valid and is the last move of the solution, provide feedback that the move was correct and the puzzle is done
+   */
   const handleMove = (orig: Key, dest: Key): void => {
-
-    /**
-     * if move is invalid, ignore
-     * if move is valid but not solution, provide feedback that the move was incorrect
-     * if move is valid and is the next move of the solution, but not the last move, provide feedback that the move was correct and that the puzzle continues, and make the opponent's next move as provided
-     * if move is valid and is the last move of the solution, provide feedback that the move was correct and the puzzle is done
-     */
 
     setViewOnly(true);
 
