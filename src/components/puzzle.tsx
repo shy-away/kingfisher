@@ -1,15 +1,15 @@
-import { Key, useEffect } from "react";
+import { useEffect } from "react";
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
-import { Chess } from "chess.js";
+import { Chess, Move, Piece } from "chess.js";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import Chessground from "./chessground";
-import { MoveMetadata } from "@lichess-org/chessground/types";
+import { Key, Dests } from "@lichess-org/chessground/types";
 
 interface PuzzleData {
   game: {
@@ -76,6 +76,8 @@ function PuzzleWindow() {
   const [viewOnly, setViewOnly] = useState<boolean>(false);
   const [puzzleSolution, setPuzzleSolution] = useState<string[]>([]);
   const [puzzleFeedback, setPuzzleFeedback] = useState<string>("Make a move...");
+  const [puzzleColor, setPuzzleColor] = useState<"black" | "white" | undefined>(undefined);
+  const [legalDestinations, setLegalDestinations] = useState<Dests | undefined>(undefined);
 
   const updateChessPosition = () => {
     setChessPosition(chessGame.fen());
@@ -87,6 +89,7 @@ function PuzzleWindow() {
     setViewOnly(true);
 
     setPuzzleSolution(puzzleData.puzzle.solution);
+    setPuzzleColor(puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white");
 
     const puzzlePgn: string = puzzleData.game.pgn;
     const puzzlePgnArr: string[] = puzzlePgn.split(" ");
@@ -99,6 +102,22 @@ function PuzzleWindow() {
 
     setTimeout(() => {
       chessGame.move(lastMove);
+
+      const destsMap: Dests = new Map();
+      const verboseLegalMoves: Move[] = chessGame.moves({ verbose: true })
+
+      for (const entry of verboseLegalMoves) {
+        const from: Key = entry.from;
+        const to: Key = entry.to;
+
+        if (!destsMap.has(from)) {
+          destsMap.set(from, [to])
+        } else {
+          destsMap.set(from, [...destsMap.get(from)!, to])
+        }
+      }
+      setLegalDestinations(destsMap);
+
       updateChessPosition();
       setViewOnly(false);
     }, 1000);
@@ -113,10 +132,7 @@ function PuzzleWindow() {
     refetchNewPuzzle();
   };
 
-  const handleMove = (orig: Key, dest: Key, metadata: MoveMetadata): void => {
-    // console.log("Origin:", orig);
-    // console.log("Destination:", dest);
-    // console.log("Metadata:", metadata);
+  const handleMove = (orig: Key, dest: Key): void => {
 
     /**
      * if move is invalid, ignore
@@ -195,16 +211,17 @@ function PuzzleWindow() {
               config={{
                 viewOnly,
                 fen: chessPosition,
-                orientation:
-                  puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white", // TODO: DRY this and next use of same expression
+                orientation: puzzleColor,
                 lastMove: [lastMoveFrom, lastMoveTo],
                 turnColor: chessGame.turn() === "w" ? "white" : "black",
                 check: chessGame.inCheck(),
                 movable: {
-                  color: puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white",
-                  events: {
-                    after: handleMove
-                  }
+                  free: false,
+                  color: puzzleColor,
+                  dests: legalDestinations,
+                },
+                events: {
+                  move: handleMove
                 }
               }}
             />
