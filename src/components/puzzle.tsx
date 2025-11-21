@@ -81,6 +81,22 @@ function PuzzleWindow() {
 
   const updateChessPosition = () => {
     setChessPosition(chessGame.fen());
+
+    // update what moves are legal
+    const destsMap: Dests = new Map();
+    const verboseLegalMoves: Move[] = chessGame.moves({ verbose: true })
+
+    for (const entry of verboseLegalMoves) {
+      const from: Key = entry.from;
+      const to: Key = entry.to;
+
+      if (!destsMap.has(from)) {
+        destsMap.set(from, [to])
+      } else {
+        destsMap.set(from, [...destsMap.get(from)!, to])
+      }
+    }
+    setLegalDestinations(destsMap);
   };
 
   useEffect(() => {
@@ -101,22 +117,6 @@ function PuzzleWindow() {
 
     setTimeout(() => {
       chessGame.move(lastMove);
-
-      const destsMap: Dests = new Map();
-      const verboseLegalMoves: Move[] = chessGame.moves({ verbose: true })
-
-      for (const entry of verboseLegalMoves) {
-        const from: Key = entry.from;
-        const to: Key = entry.to;
-
-        if (!destsMap.has(from)) {
-          destsMap.set(from, [to])
-        } else {
-          destsMap.set(from, [...destsMap.get(from)!, to])
-        }
-      }
-      setLegalDestinations(destsMap);
-
       updateChessPosition();
       setViewOnly(false);
     }, 1000);
