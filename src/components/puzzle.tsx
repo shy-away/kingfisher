@@ -94,8 +94,7 @@ function PuzzleWindow() {
     const puzzlePgn: string = puzzleData.game.pgn;
     const puzzlePgnArr: string[] = puzzlePgn.split(" ");
 
-    // TODO: find better fix than `?? ""` for addressing type issue
-    const lastMove = puzzlePgnArr.at(-1) ?? "";
+    const lastMove = puzzlePgnArr.at(-1)!;
 
     chessGame.loadPgn(puzzlePgnArr.slice(0, -1).join(" "));
     updateChessPosition();
@@ -188,10 +187,9 @@ function PuzzleWindow() {
     setViewOnly(false);
   }
 
-  // TODO: find better solution for type safety
   const { from: lastMoveFrom, to: lastMoveTo } = chessGame
     .history({ verbose: true })
-    .at(-1) ?? {from: "e2", to: "e4"};
+    .at(-1)!;
 
   return isLoading ? (
     <Spinner />
