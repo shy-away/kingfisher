@@ -78,6 +78,7 @@ function PuzzleWindow() {
   const [puzzleFeedback, setPuzzleFeedback] = useState<string>("Make a move...");
   const [puzzleColor, setPuzzleColor] = useState<"black" | "white" | undefined>(undefined);
   const [legalDestinations, setLegalDestinations] = useState<Dests | undefined>(undefined);
+  const [lastMoves, setLastMoves] = useState<Key[] | undefined>(undefined);
 
   const updateChessPosition = () => {
     setChessPosition(chessGame.fen());
@@ -97,6 +98,15 @@ function PuzzleWindow() {
       }
     }
     setLegalDestinations(destsMap);
+
+    // set last moves array
+    const { from: lastMoveFrom, to: lastMoveTo } = chessGame
+      .history({ verbose: true })
+      .at(-1)!;
+
+      console.log(lastMoveFrom)
+    
+    setLastMoves([lastMoveFrom as Key, lastMoveTo as Key]);
   };
 
   useEffect(() => {
@@ -187,10 +197,6 @@ function PuzzleWindow() {
     setViewOnly(false);
   }
 
-  const { from: lastMoveFrom, to: lastMoveTo } = chessGame
-    .history({ verbose: true })
-    .at(-1)!;
-
   return isLoading ? (
     <Spinner />
   ) : isError ? (
@@ -210,7 +216,7 @@ function PuzzleWindow() {
                 viewOnly,
                 fen: chessPosition,
                 orientation: puzzleColor,
-                lastMove: [lastMoveFrom, lastMoveTo],
+                lastMove: lastMoves,
                 turnColor: chessGame.turn() === "w" ? "white" : "black",
                 check: chessGame.inCheck(),
                 movable: {
