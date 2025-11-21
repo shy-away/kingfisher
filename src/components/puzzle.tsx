@@ -49,13 +49,6 @@ export default function Puzzle() {
 }
 
 function PuzzleWindow() {
-  // fetch puzzle data
-  // create chess game using puzzle data
-  // display puzzle on chess board
-  // if user makes incorrect move, don't update the board, and provide feedback
-  // if user makes next correct move: update board, update display, and go to next move of puzzle
-  // at the end of the puzzle, provide feedback that the puzzle is complete
-
   const {
     data: puzzleData,
     isLoading,
