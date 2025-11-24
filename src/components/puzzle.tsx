@@ -96,8 +96,6 @@ function PuzzleWindow() {
     const { from: lastMoveFrom, to: lastMoveTo } = chessGame
       .history({ verbose: true })
       .at(-1)!;
-
-      console.log(lastMoveFrom)
     
     setLastMove([lastMoveFrom as Key, lastMoveTo as Key]);
   };
