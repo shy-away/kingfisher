@@ -4,7 +4,7 @@ import {
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
-import { Chess, Move, Piece } from "chess.js";
+import { Chess, Move, Square } from "chess.js";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -143,7 +143,14 @@ function PuzzleWindow() {
 
     setViewOnly(true);
 
-    const userMove: string = `${orig}${dest}`;
+    let promotion: string = "";
+
+    // if piece on origin square is a pawn, and if destination square is on rank 1 or 8, this is a promotion
+    if (chessGame.get(orig as Square)?.type === "p" && /[abcdefgh][18]/.test(dest)) {
+      promotion = "q"
+    }
+
+    const userMove: string = `${orig}${dest}${promotion}`;
 
     let msg: string = "";
 
