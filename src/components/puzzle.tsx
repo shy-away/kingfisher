@@ -178,14 +178,7 @@ function PuzzleWindow() {
 
     setPuzzleFeedback(msg);
 
-    // TODO: validate differently if puzzle has theme `mateIn1`
-    /** Lichess puzzles always have exactly one solution as calculated by their
-     * engine, UNLESS the puzzle is a mate in 1. In that case, multiple
-     * solutions are allowed. Because of that, in the case that the puzzle is
-     * a mate in 1, the user may input a solution that is correct but nonetheless
-     * not the move specified by the API as "correct". In that case, manual
-     * validation using `chessGame.isCheckmate()` will need to occur.
-     */
+    // TODO: validate differently if puzzle ends in checkmate
 
     setViewOnly(false);
   }
