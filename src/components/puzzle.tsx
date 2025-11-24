@@ -66,7 +66,6 @@ function PuzzleWindow() {
   const chessGame: Chess = chessGameRef.current;
 
   const [chessPosition, setChessPosition] = useState<string>(chessGame.fen());
-  const [viewOnly, setViewOnly] = useState<boolean>(false);
   const [puzzleSolution, setPuzzleSolution] = useState<string[]>([]);
   const [puzzleFeedback, setPuzzleFeedback] = useState<string>("Make a move...");
   const [puzzleColor, setPuzzleColor] = useState<"black" | "white" | undefined>(undefined);
@@ -103,8 +102,6 @@ function PuzzleWindow() {
   useEffect(() => {
     if (!puzzleData) return;
 
-    setViewOnly(true);
-
     setPuzzleSolution(puzzleData.puzzle.solution);
     setPuzzleColor(puzzleData.puzzle.initialPly % 2 === 0 ? "black" : "white");
 
@@ -119,7 +116,6 @@ function PuzzleWindow() {
     setTimeout(() => {
       chessGame.move(lastMove);
       updateChessPosition();
-      setViewOnly(false);
     }, 1000);
   }, [puzzleData]);
 
@@ -140,9 +136,6 @@ function PuzzleWindow() {
    * if move is valid and is the last move of the solution, provide feedback that the move was correct and the puzzle is done
    */
   const handleMove = (orig: Key, dest: Key): void => {
-
-    setViewOnly(true);
-
     let promotion: string = "";
 
     // if piece on origin square is a pawn, and if destination square is on rank 1 or 8, this is a promotion
@@ -156,7 +149,6 @@ function PuzzleWindow() {
 
     if (userMove !== puzzleSolution[0]) {
       msg += `${userMove} wasn't the solution. `
-      setViewOnly(true);
       setTimeout(() => {
         updateChessPosition();
       }, 500)
@@ -184,8 +176,6 @@ function PuzzleWindow() {
     setPuzzleFeedback(msg);
 
     // TODO: validate differently if puzzle ends in checkmate
-
-    setViewOnly(false);
   }
 
   return isLoading ? (
@@ -204,7 +194,6 @@ function PuzzleWindow() {
             <Chessground
               contained={true}
               config={{
-                viewOnly,
                 fen: chessPosition,
                 orientation: puzzleColor,
                 lastMove: lastMove,
